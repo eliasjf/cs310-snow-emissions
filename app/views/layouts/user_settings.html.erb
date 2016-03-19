@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Settings</title>
+  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= csrf_meta_tags %>
+
+  <meta property="og:url"                content="http://hidden-sierra-2430.herokuapp.com/" />
+  <meta property="og:title"              content="Snow Depth and Gas Emissions Across BC" />
+  <meta property="og:site_name"          content="CS310Project" />
+  <meta property="og:description"        content="How snow depth relates to green house gas emisions in BC" />
+  <meta property="og:image"              content="http://static01.nyt.com/images/2015/02/19/arts/international/19iht-btnumbers19A/19iht-btnumbers19A-facebookJumbo-v2.jpg" />
+
+
+</head>
+<body>
+<%-# all required fb logic -%>
+<script>
+    // This is called with the results from from FB.getLoginStatus().
+    function statusChangeCallback(response) {
+        console.log('statusChangeCallback');
+        console.log(response);
+        // The response object is returned with a status field that lets the
+        // app know the current login status of the person.
+        // Full docs on the response object can be found in the documentation
+        // for FB.getLoginStatus().
+        if (response.status === 'connected') {
+            // Logged into your app and Facebook.
+            testAPI();
+        } else if (response.status === 'not_authorized') {
+            // The person is logged into Facebook, but not your app.
+            document.getElementById('status').innerHTML = 'Not logged ' +
+                    'into this app.';
+        } else {
+            // The person is not logged into Facebook, so we're not sure if
+            // they are logged into this app or not.
+            document.getElementById('status').innerHTML = 'Not logged ' +
+                    'into Facebook.';
+        }
+    }
+
+    // This function is called when someone finishes with the Login
+    // Button.  See the onlogin handler attached to it in the sample
+    // code below.
+    function checkLoginState() {
+        FB.getLoginStatus(function(response) {
+            statusChangeCallback(response);
+        });
+    }
+
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId      : '915826525167870',
+            cookie     : true,  // enable cookies to allow the server to access the session
+            xfbml      : true,  // parse social plugins on this page
+            version    : 'v2.2' // use version 2.2  (should be 2.5???)
+        });
+
+        // Now that we've initialized the JavaScript SDK, we call
+        // FB.getLoginStatus().  This function gets the state of the
+        // person visiting this page and can return one of three states to
+        // the callback you provide.  They can be:
+        //
+        // 1. Logged into your app ('connected')
+        // 2. Logged into Facebook, but not your app ('not_authorized')
+        // 3. Not logged into Facebook and can't tell if they are logged into
+        //    your app or not.
+        //
+        // These three cases are handled in the callback function.
+
+        FB.getLoginStatus(function(response) {
+            statusChangeCallback(response);
+        });
+
+    };
+
+    // Load the SDK asynchronously
+    (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js"; //add to end??  #xfbml=1&version=v2.2&appId=915826525167870
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    // Here we run a very simple test of the Graph API after login is
+    // successful.  See statusChangeCallback() for when this call is made.
+    function testAPI() {
+        console.log('Welcome!  Fetching your information.... ');
+        FB.api('/me', function(response) {
+            console.log('Successful login for: ' + response.name);
+            document.getElementById('status').innerHTML =
+                    response.name;
+        });
+    }
+</script>
+
+<!-- header at top of page -->
+<header>
+  <nav class="navbar navbar-default navbar-fixed-top" >
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand">User Settings</a>
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+        <ul class="nav navbar-nav navbar-right">
+
+          <% if current_user %>
+              <!-- Single button -->
+              <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle" id="status" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                   <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a>Name: <%= current_user.name %></a></li>
+                  <li><a>Email: <%= current_user.email %></a></li>
+                  <li><a>UID: <%= current_user.uid %></a></li>
+                  <li><a>Provider: <%= current_user.provider %></a></li>
+                  <li><a id="truncated">Profile picture: <%= current_user.image %></a></li>
+                  <li role="separator" class="divider"></li>
+                  <li><a>Admin: <%= current_user.is_admin %></a></li>
+                  <li><a id="truncated">OAuth Token: <%= current_user.oauth_token %></a></li>
+                  <li><a>OAuth Expiry: <%= current_user.oauth_expires_at %></a></li>
+                </ul>
+              </div>
+
+              <a><img src="<%= current_user.image %>" class="img-rounded" width="40" height="40"></a>
+              <a href="signout" class="btn btn-primary navbar-btn" role="button">Logout</a>
+              <a href="/user_settings" class="btn btn-default navbar-btn" role="button">User Settings</a>
+
+          <% else %>
+              <%-# FB Login button -%>
+              <a href="/auth/facebook" class="btn btn-primary navbar-btn" role="button">Login with Facebook</a>
+        </ul>
+
+        <p class="navbar-text navbar-right" id="status"></p>
+        <% end %>
+
+
+
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+</header>
+
+<% if current_user %>
+    <div id='balls'>
+      <img src="<%= current_user.image %>" class="img-rounded" width="40" height="40">
+      <%= form_tag("/user_settings", method: "post") do %>
+          <table style="width:100%">
+            <tr>
+              <td>
+                <%= label_tag(:name, "Name:") %>
+              </td>
+              <td>
+                <%= text_field_tag(:name , current_user.name) %>
+              </td>
+            </tr>
+            <tr>
+            <td>
+              <%= label_tag(:email, "Email:") %>
+            </td>
+            <td>
+              <%= text_field_tag(:email , current_user.email) %>
+            </td>
+            </tr>
+            <tr>
+            <td>
+              <%= label_tag(:provider, "Provider:") %>
+            </td>
+            <td>
+              <%= text_field_tag(:provider , current_user.provider, disabled: true) %>
+            </td>
+            </tr>
+            <tr>
+            <td>
+              <%= label_tag(:uid, "User ID:") %>
+            </td>
+            <td>
+              <%= text_field_tag(:uid, current_user.uid, disabled: true) %>
+            </td>
+            </tr>
+            <tr>
+            <td>
+              <%= label_tag(:admin, "Admin:") %>
+            </td>
+            <td>
+              <%= text_field_tag(:admin, current_user.is_admin, disabled: true) %>
+            </td>
+            </tr>
+            <tr>
+            <td>
+              <%= submit_tag("Submit") %>
+            </td>
+            </tr>
+          </table>
+    </div>
+      <% end %>
+<% else %>
+    <a id='balls'> Error displaying user information. User may no longer be logged in </a>
+<% end %>
+
+</body>
+</html>

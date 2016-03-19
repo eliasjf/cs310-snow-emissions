@@ -1,0 +1,16 @@
+development:
+  adapter: postgresql
+  database: cs310_project_development
+  pool: 5
+  host: localhost
+  username:
+  password:
+
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: cs310_project_test
+  host: localhost
+  pool: 5
+  username:
+  password:
